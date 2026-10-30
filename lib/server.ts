@@ -3,13 +3,14 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Comment, Guest, Live, Photo, PublicRsvp } from './party';
 
 // Kept server-side so it stays a surprise until the guest replies.
-export const MENU = [
-  ['Welcome drinks', 'Kesar thandai · Masala chai · Rose lemonade'],
-  ['Chaat corner', 'Pani puri · Dahi bhalla · Aloo tikki'],
-  ['The feast', 'Paneer butter masala · Dal makhani · Veg biryani · Garlic naan'],
-  ['Mithai', 'Kaju katli · Gulab jamun · Motichoor ladoo'],
-  ['Midnight treat', 'Kulfi bar & paan shots'],
-];
+// export const MENU = [
+//   ['Welcome drinks', 'Kesar thandai · Masala chai · Rose lemonade'],
+//   ['Chaat corner', 'Pani puri · Dahi bhalla · Aloo tikki'],
+//   ['The feast', 'Paneer butter masala · Dal makhani · Veg biryani · Garlic naan'],
+//   ['Mithai', 'Kaju katli · Gulab jamun · Motichoor ladoo'],
+//   ['Midnight treat', 'Kulfi bar & paan shots'],
+// ];
+export const MENU = ['Surprise Menu itselfs a surprise!'];
 
 let client: SupabaseClient | undefined;
 // Uses the secret key: tables have RLS on with no policies, so only this server can read them.

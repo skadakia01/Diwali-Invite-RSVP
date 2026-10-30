@@ -14,8 +14,8 @@ export const PARTY = {
     { icon: 'diya', title: 'Diyas & sparklers', note: 'Light the lamps, then light up the night' },
     { icon: 'rangoli', title: 'Rangoli', note: 'Details to be confirmed', tbd: true },
     { icon: 'dinner', title: 'Surprise dinner', note: 'The menu stays secret until you reply' },
-    { icon: 'music', title: 'Games & music', note: 'Bring your competitive side' },
-    { icon: 'garba', title: 'Garba', note: 'Dance the night away' },
+    { icon: 'music', title: 'Games', note: 'Bring your competitive side' },
+    { icon: 'garba', title: 'Music & Garba', note: 'Dance the night away' },
   ],
   dressTheme: 'Festive Ethnic · Traditional',
   dressNote: 'Rich silks, gold and jewel tones. Dress for the festival of lights.',
@@ -30,7 +30,7 @@ export const PARTY = {
     { id: 'royal', icon: 'crown', name: 'Royal Traditional', desc: 'Sarees, lehengas, sherwanis, bandhgalas' },
     { id: 'indo', icon: 'gem', name: 'Indo-Western Glam', desc: 'Fusion gowns, kurta with blazer, dhoti pants' },
     { id: 'kurta', icon: 'shirt', name: 'Classic Kurta', desc: 'Kurta pajama, anarkali, salwar suits' },
-    { id: 'color', icon: 'palette', name: 'Colour-Pop Twinning', desc: 'Coordinate one bright colour with your crew' },
+    { id: 'color', icon: 'palette', name: 'Color-Pop Twinning', desc: 'Coordinate one bright color with your crew' },
   ],
 };
 // The surprise menu lives in lib/server.ts so it never reaches the browser before a guest replies.
