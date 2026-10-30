@@ -5,8 +5,13 @@ type Props = { className?: string; style?: CSSProperties };
 // useId() output contains characters that break url(#...) references, so keep it alphanumeric.
 const useSvgId = () => useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
-export function Diya({ className = '', delay = 0 }: Props & { delay?: number }) {
+// `lit={false}` shows an unlit diya; switching to true ignites the flame with a little pop.
+export function Diya({ className = '', delay = 0, lit = true }: Props & { delay?: number; lit?: boolean }) {
   const id = useSvgId();
+  const ignite: CSSProperties = {
+    transformBox: 'view-box', transformOrigin: '60px 62px', opacity: lit ? 1 : 0, transform: `scale(${lit ? 1 : 0})`,
+    transition: 'transform .8s cubic-bezier(.34,1.56,.64,1), opacity .5s ease',
+  };
   return (
     <svg viewBox="0 0 120 120" className={className} aria-hidden>
       <defs>
@@ -27,16 +32,20 @@ export function Diya({ className = '', delay = 0 }: Props & { delay?: number }) 
           <stop offset="1" stopColor="#4d1a08" />
         </linearGradient>
       </defs>
-      <circle cx="60" cy="44" r="44" fill={`url(#${id}h)`} className="halo" style={{ animationDelay: `${delay}s` }} />
+      <g style={{ opacity: lit ? 1 : 0, transition: 'opacity 1.2s ease .2s' }}>
+        <circle cx="60" cy="44" r="44" fill={`url(#${id}h)`} className="halo" style={{ animationDelay: `${delay}s` }} />
+      </g>
       <path d="M12 66 C18 92 40 104 60 104 C80 104 102 92 108 66 Z" fill={`url(#${id}b)`} />
       <path d="M26 82 Q60 98 94 82" fill="none" stroke="#f3d27a" strokeWidth="3" strokeDasharray="0.1 8" strokeLinecap="round" />
       <path d="M34 92 Q60 102 86 92" fill="none" stroke="#d4a017" strokeOpacity=".5" strokeWidth="1.5" />
       <ellipse cx="60" cy="66" rx="48" ry="8.5" fill="#3a1206" />
       <ellipse cx="60" cy="66" rx="48" ry="8.5" fill="none" stroke="#e8b44a" strokeWidth="2.5" />
       <path d="M60 58 V64" stroke="#2b1208" strokeWidth="2.5" strokeLinecap="round" />
-      <g className="flame" style={{ animationDelay: `${delay}s` }}>
-        <path d="M60 12 C70 30 74 44 60 60 C46 44 50 30 60 12 Z" fill={`url(#${id}f)`} />
-        <path d="M60 34 C64 43 65 50 60 58 C55 50 56 43 60 34 Z" fill="#fffef5" opacity=".85" />
+      <g style={ignite}>
+        <g className="flame" style={{ animationDelay: `${delay}s` }}>
+          <path d="M60 12 C70 30 74 44 60 60 C46 44 50 30 60 12 Z" fill={`url(#${id}f)`} />
+          <path d="M60 34 C64 43 65 50 60 58 C55 50 56 43 60 34 Z" fill="#fffef5" opacity=".85" />
+        </g>
       </g>
     </svg>
   );

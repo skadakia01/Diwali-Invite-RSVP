@@ -2,14 +2,14 @@
 import { Fragment, useEffect, useRef, useState, useSyncExternalStore, type DragEvent, type FormEvent, type ReactNode } from 'react';
 import { AnimatePresence, MotionConfig, motion, useMotionValueEvent, useScroll, type Variants } from 'motion/react';
 import {
-  AlertCircle, CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Crown, Download, Flame, Flower2, Heart,
+  AlertCircle, CalendarDays, CalendarPlus, Check, ChevronLeft, ChevronRight, Clock, Crown, Download, Flame, Flower2, Gem, Heart,
   HeartHandshake, ImagePlus, Loader2, Lock, MapPin, MessageCircle, Music, Palette, PartyPopper, Printer, Quote, Send, Share2,
-  Link2, Shirt, Smartphone, Sparkles, Ticket, UtensilsCrossed, X, type LucideIcon,
+  Shirt, Smartphone, Ticket, UtensilsCrossed, X, type LucideIcon,
 } from 'lucide-react';
 import { createPhotoUpload, postComment, saveRsvp, savePhoto } from '@/app/actions';
 import { compress, getGuestId, getJSON, petals } from '@/lib/browser';
 import {
-  DATE_STR, DAY_MONTH, END, GCAL_URL, INVITE_TEXT, MAPS_URL, PARTY, SITE_URL, START, STATUS, TIME_STR, WEEKDAY, YEAR,
+  DATE_STR, DAY_MONTH, END, GCAL_URL, MAPS_URL, PARTY, START, STATUS, TIME_STR, WEEKDAY, YEAR,
   dressName, firstName, fmtTime, reminderText, sms, wa, type Live, type Me, type State, type Status,
 } from '@/lib/party';
 import { drawTicket } from '@/lib/ticket';
@@ -19,7 +19,7 @@ import { ScratchCard } from './scratch-card';
 
 const ICONS: Record<string, LucideIcon> = {
   welcome: HeartHandshake, diya: Flame, rangoli: Flower2, dinner: UtensilsCrossed, music: Music, garba: PartyPopper,
-  crown: Crown, sparkles: Sparkles, shirt: Shirt, palette: Palette,
+  crown: Crown, gem: Gem, shirt: Shirt, palette: Palette,
 };
 const REPLIES: { value: Status; label: string; icon: LucideIcon }[] = [
   { value: 'yes', label: 'Joyfully accepts', icon: PartyPopper },
@@ -36,6 +36,7 @@ const tickEverySecond = (cb: () => void) => { const t = setInterval(cb, 1000); r
 const must = <T extends { error?: string }>(r: T) => { if (r.error) throw new Error(r.error); return r; };
 const when = (iso: string) => new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 const tilt = (id: number) => ((id * 37) % 7) - 3;
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 type Picked = { file: File; url: string; status: 'idle' | 'uploading' | 'done' };
 
@@ -52,6 +53,7 @@ export function Invite({ initial }: { initial: State }) {
   const [dragging, setDragging] = useState(false);
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [ticketDrawn, setTicketDrawn] = useState(false);
+  const [lit, setLit] = useState(false);
   const [showNav, setShowNav] = useState(false);
   const ticket = useRef<HTMLCanvasElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -170,12 +172,18 @@ export function Invite({ initial }: { initial: State }) {
     });
   };
 
-  const makeTicket = () =>
+  // Lighting the diya creates the memory ticket. Tapping a lit diya relights it and refreshes the ticket.
+  const lightDiya = () =>
     run('ticket', async () => {
       if (!me?.guest || !ticket.current) return;
+      if (lit) { setLit(false); await sleep(450); }
+      setLit(true);
+      await sleep(1200);
       const photos = (me.photos.length ? me.photos.slice(-3) : state.photos.slice(0, 3)).map(p => p.url);
       setTicketDrawn(true);
       await drawTicket(ticket.current, me.guest, photos, me.comments.at(-1)?.text);
+      petals();
+      ticket.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   const saveTicket = () => {
     const a = document.createElement('a');
@@ -279,7 +287,7 @@ export function Invite({ initial }: { initial: State }) {
             />
           </div>
 
-          <Reveal delay={0.1} className="mt-6 grid gap-8 rounded-3xl border border-ink/10 bg-white/50 p-6 sm:p-8 md:grid-cols-3">
+          <Reveal delay={0.1} className="mt-6 grid gap-8 rounded-3xl border border-ink/10 bg-white/50 p-6 sm:grid-cols-2 sm:p-8">
             <div>
               <p className="label">Add to your calendar</p>
               <div className="flex flex-wrap gap-2">
@@ -299,21 +307,6 @@ export function Invite({ initial }: { initial: State }) {
                   ? <a className="text-maroon-700 font-semibold" href={wa(`Hi! A question about ${PARTY.title}:`, PARTY.hostPhone)} target="_blank" rel="noopener">Questions? Message the host →</a>
                   : 'Opens a ready-to-send message with all the details.'}
               </p>
-            </div>
-            <div>
-              <p className="label">Share the invite</p>
-              <div className="flex flex-wrap gap-2">
-                <a className="btn btn-wa btn-sm" href={wa(INVITE_TEXT)} target="_blank" rel="noopener"><MessageCircle className="size-4" /> WhatsApp</a>
-                <a className="btn btn-ghost btn-sm" href={sms(INVITE_TEXT)}><Smartphone className="size-4" /> Text</a>
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => (canShare ? navigator.share({ title: PARTY.title, text: INVITE_TEXT }).catch(() => {}) : run('copy', async () => { await navigator.clipboard.writeText(SITE_URL); notify('Invite link copied'); }))}
-                >
-                  {canShare ? <Share2 className="size-4" /> : <Link2 className="size-4" />} {canShare ? 'Share' : 'Copy link'}
-                </button>
-              </div>
-              <p className="mt-3 text-xs text-ink-soft">Everyone RSVPs for themselves on their own phone.</p>
             </div>
           </Reveal>
 
@@ -446,7 +439,7 @@ export function Invite({ initial }: { initial: State }) {
                       </p>
                       <dl className="mt-7 grid grid-cols-3 divide-x divide-ink/10 rounded-2xl border border-ink/10 bg-ivory/60 py-4 text-sm">
                         <div><dt className="label mb-1">Reply</dt><dd className="font-semibold">{{ yes: 'Attending', maybe: 'Deciding', no: 'Not coming' }[guest.status]}</dd></div>
-                        <div><dt className="label mb-1">Outfit</dt><dd className="font-semibold">{dressName(guest.dress)?.split(' ')[0] ?? '—'}</dd></div>
+                        <div><dt className="label mb-1">Outfit</dt><dd className="font-semibold">{dressName(guest.dress)?.split(' ')[0] ?? 'None'}</dd></div>
                         <div><dt className="label mb-1">Ticket</dt><dd className="font-semibold">#{String(guest.ticket_no).padStart(3, '0')}</dd></div>
                       </dl>
                       <div className="mt-7 flex flex-wrap justify-center gap-3">
@@ -691,7 +684,7 @@ export function Invite({ initial }: { initial: State }) {
         </Section>
 
         {/* ───────── 07 Memory ticket ───────── */}
-        <Section id="keepsake" n="07" kicker="A keepsake" title="Your memory ticket" intro="Finish the four steps, then create a ticket with your reply, outfit, photos and wish. Save it, share it or print it.">
+        <Section id="keepsake" n="07" kicker="A keepsake" title="Your memory ticket" intro="Finish the four steps, then light the diya. Its glow turns your reply, outfit, photos and wish into a ticket to save, share or print.">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <Reveal className="mx-auto w-full max-w-md rounded-3xl border border-ink/10 bg-white/60 p-7 sm:p-9">
               <div className="flex items-center gap-5">
@@ -714,12 +707,28 @@ export function Invite({ initial }: { initial: State }) {
                   </li>
                 ))}
               </ul>
-              <button className="btn btn-primary mt-8 h-14 w-full text-base" onClick={makeTicket} disabled={!guest || busy === 'ticket'}>
-                {!guest ? <><Lock className="size-4" /> Reply first to create it</> : busy === 'ticket' ? <Loader2 className="size-5 animate-spin" /> : <><Sparkles className="size-4" /> {ticketDrawn ? 'Refresh my ticket' : 'Create my ticket'}</>}
-              </button>
+              <div className="mt-8 flex flex-col items-center border-t border-ink/10 pt-7 text-center">
+                <button
+                  type="button"
+                  onClick={lightDiya}
+                  disabled={!guest || busy === 'ticket'}
+                  aria-label={ticketDrawn ? 'Light the diya again to refresh your memory ticket' : 'Light the diya to create your memory ticket'}
+                  className="relative grid size-36 place-items-center rounded-full transition enabled:cursor-pointer enabled:hover:scale-105 enabled:active:scale-95 disabled:opacity-60"
+                >
+                  {guest && !lit && <span className="bg-gold/25 absolute inset-6 animate-ping rounded-full" aria-hidden />}
+                  <span className={`bg-maroon-900 absolute inset-3 rounded-full transition-shadow duration-1000 ${lit ? 'shadow-[0_0_60px_10px_rgba(255,150,40,.45)]' : ''}`} aria-hidden />
+                  <Diya className="relative size-28" lit={lit} />
+                </button>
+                <p className="font-display mt-3 text-2xl font-semibold italic">
+                  {!guest ? 'Reply first to light your diya' : busy === 'ticket' ? 'Lighting your diya…' : ticketDrawn ? 'Your memory is ready' : 'Tap the diya to light it'}
+                </p>
+                <p className="mt-1 text-sm text-ink-soft">
+                  {!guest ? <a href="#rsvp" className="text-maroon-700 font-semibold">RSVP now →</a> : ticketDrawn ? 'Tap again to refresh it with your latest photos and wishes.' : 'Lighting it creates your memory ticket.'}
+                </p>
+              </div>
               <AnimatePresence>
                 {ticketDrawn && (
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
                     <button className="btn btn-ghost btn-sm" onClick={saveTicket}><Download className="size-4" /> Save</button>
                     <button className="btn btn-ghost btn-sm" onClick={() => print()}><Printer className="size-4" /> Print</button>
                     {canShare && <button className="btn btn-ghost btn-sm col-span-2 sm:col-span-1" onClick={shareTicket}><Share2 className="size-4" /> Share</button>}
@@ -740,7 +749,7 @@ export function Invite({ initial }: { initial: State }) {
                 <div className="grid aspect-[1080/1760] place-items-center rounded-[2rem] border-2 border-dashed border-ink/15 bg-white/30 text-center text-ink-soft">
                   <div>
                     <Ticket className="mx-auto size-10 opacity-50" strokeWidth={1.4} />
-                    <p className="font-display mt-3 text-xl italic">Your ticket appears here</p>
+                    <p className="font-display mt-3 text-xl italic">Light the diya and your ticket appears here</p>
                   </div>
                 </div>
               )}
@@ -844,7 +853,7 @@ function Section({ id, n, kicker, title, intro, dark = false, children }: { id: 
       <Mandala className={`animate-spin-slow pointer-events-none absolute -top-48 -right-48 -z-10 size-[32rem] ${dark ? 'text-gold/[0.07]' : 'text-maroon-700/[0.06]'}`} />
       <div className="mx-auto max-w-6xl">
         <Reveal className="mx-auto mb-14 max-w-2xl text-center">
-          <p className={`kicker ${dark ? 'text-gold-light/80' : 'text-saffron-deep'}`}>{n} — {kicker}</p>
+          <p className={`kicker ${dark ? 'text-gold-light/80' : 'text-saffron-deep'}`}>{n} · {kicker}</p>
           <h2 className="font-display mt-4 text-5xl leading-[1.05] font-semibold text-balance sm:text-6xl">{title}</h2>
           <Ornament className={`mx-auto mt-6 w-44 ${dark ? 'text-gold' : 'text-gold-deep'}`} />
           {intro && <p className={`mt-6 leading-relaxed text-balance ${dark ? 'text-ivory/70' : 'text-ink-soft'}`}>{intro}</p>}

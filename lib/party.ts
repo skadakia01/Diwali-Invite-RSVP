@@ -1,12 +1,12 @@
 // ================= EDIT YOUR PARTY HERE =================
 export const PARTY = {
   title: 'Diwali Night',
-  // Keep the UTC offset in sync with timeZone (US Eastern is -05:00 in November).
-  start: '2026-11-07T17:00:00-05:00',
+  // Keep the UTC offset in sync with timeZone (Chicago is CST, -06:00, after Nov 1).
+  start: '2026-11-07T17:00:00-06:00',
   // Only used for calendar entries; the invite itself says "5:00 PM onwards".
-  end: '2026-11-07T23:00:00-05:00',
-  timeZone: 'America/New_York',
-  venue: '123 Your Street, Your City', // full address, used for Maps + calendar
+  end: '2026-11-07T23:00:00-06:00',
+  timeZone: 'America/Chicago',
+  venue: '1246 W Devon Ave, Chicago, IL 60660', // full address, used for Maps + calendar
   hostPhone: '', // e.g. '15551234567' (country code + number, digits only) so guests can WhatsApp you
   rsvpBy: 'Wednesday, November 4',
   lineup: [
@@ -28,7 +28,7 @@ export const PARTY = {
   ],
   dressCodes: [
     { id: 'royal', icon: 'crown', name: 'Royal Traditional', desc: 'Sarees, lehengas, sherwanis, bandhgalas' },
-    { id: 'indo', icon: 'sparkles', name: 'Indo-Western Glam', desc: 'Fusion gowns, kurta with blazer, dhoti pants' },
+    { id: 'indo', icon: 'gem', name: 'Indo-Western Glam', desc: 'Fusion gowns, kurta with blazer, dhoti pants' },
     { id: 'kurta', icon: 'shirt', name: 'Classic Kurta', desc: 'Kurta pajama, anarkali, salwar suits' },
     { id: 'color', icon: 'palette', name: 'Colour-Pop Twinning', desc: 'Coordinate one bright colour with your crew' },
   ],
