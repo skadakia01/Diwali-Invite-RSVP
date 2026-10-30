@@ -22,7 +22,8 @@ export const viewport: Viewport = { themeColor: '#2a0510' };
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${cormorant.variable} ${manrope.variable} ${tiro.variable}`}>
-      <body>{children}</body>
+      {/* Browser extensions (e.g. ColorZilla) add attributes to <body>; ignore those mismatches. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
